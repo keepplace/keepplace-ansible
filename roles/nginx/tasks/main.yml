@@ -1,0 +1,13 @@
+
+- name: NGINX | Adding repository
+  apt_repository: repo='ppa:nginx/stable'
+
+- name: NGINX | Installing NGINX
+  apt:
+    name: nginx
+    state: latest
+
+- name: NGINX | Starting NGINX
+  service:
+    name: nginx
+    state: started

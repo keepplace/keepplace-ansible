@@ -1,0 +1,33 @@
+---
+- name: Create a {{ application_name }} virtual machine via vagrant
+  hosts: all
+  sudo: yes
+  sudo_user: root
+  remote_user: vagrant
+  vars:
+    - update_apt_cache: yes
+  vars_files:
+    - env_vars/base.yml
+#  vars:
+#    http_port: 80
+#    max_clients: 200
+#  remote_user: root
+
+  roles:
+#    - base
+#    - java
+#    - youtube-dl
+    - instamovie
+
+#  tasks:
+#  - name: Install Java 8
+#    yum: pkg=httpd state=latest
+#  - name: write the apache config file
+#    template: src=/srv/httpd.j2 dest=/etc/httpd.conf
+#    notify:
+#    - restart apache
+#  - name: ensure apache is running (and enable it at boot)
+#    service: name=httpd state=started enabled=yes
+#  handlers:
+#    - name: restart apache
+#      service: name=httpd state=restarted

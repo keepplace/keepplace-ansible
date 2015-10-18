@@ -1,0 +1,46 @@
+---
+
+- name: Directories present
+  file: path="{{ home_folder }}" state=directory
+
+- file: path="{{ home_folder }}/log" state=directory
+- file: path="{{ home_folder }}/conf" state=directory
+- file: path="{{ home_folder }}/data" state=directory
+
+- name: The latest codebase is fetched
+  git: repo="{{ git_repo }}" dest="{{ home_folder }}/src" clone=yes update=yes
+
+- name: Application is built
+  shell: bin/sbt video-podcast-downloader-rest/universal:stage
+  args:
+    chdir: "{{ home_folder }}/src"
+
+- name: Application is not running
+  ignore_errors: yes
+  shell: kill -9 `cat ./application.pid`
+  args:
+    chdir: "{{ home_folder }}"
+
+- name: There is no pid file
+  file: path="{{ home_folder }}/application.pid" state=absent
+
+- name: Old app is removed
+  file: path="{{ home_folder }}/app" state=absent
+
+- name: New version of application is deployed
+  command: mv "{{ home_folder }}/src/apps/rest/target/universal/stage" "{{ home_folder }}/app"
+
+- name: New configuration is applied
+  template:
+    src=application.conf
+    dest={{ home_folder }}/conf/application.conf
+
+- name: Database is migrated
+  shell: "java -jar app/lib/org.liquibase.liquibase-core-*.jar --classpath=\"$(echo app/lib/*.jar | tr ' ' ':')\" --driver=org.h2.Driver --username=video --password=video --changeLogFile=migrations/changelog.xml --url=\"jdbc:h2:{{database_location}}\" \"update\""
+  args:
+    chdir: "{{ home_folder }}"
+
+- name: Application is started
+  shell: "nohup app/bin/video-podcast-downloader-rest -J-Xmx256m -Dconfig.file=conf/application.conf  > ./log/application.log 2>&1 & echo $! > application.pid"
+  args:
+    chdir: "{{ home_folder }}"
