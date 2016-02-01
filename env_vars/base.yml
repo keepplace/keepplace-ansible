@@ -1,6 +1,6 @@
 ---
 
-git_repo: https://dkarpenko@bitbucket.org/sideproject_by/video-podcast-downloader-backend.git
+git_repo: https://github.com/keepplace/keepplace-backend.git
 
 project_name: keep_place_production
 application_name: Keep Place
